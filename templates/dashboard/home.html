@@ -1,0 +1,323 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Dashboard Overview</h2>
+        <span class="badge bg-primary fs-6">Last 30 Days</span>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-users me-2"></i>Unique Visitors</h6>
+                    <h2 class="display-6">{{ summary.unique_visitors }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-history me-2"></i>Returning Visitors</h6>
+                    <h2 class="display-6">{{ summary.returning_visitors }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-chart-line me-2"></i>Active Users</h6>
+                    <h2 class="display-6">{{ summary.active_users }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-dark h-100">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-clock me-2"></i>Avg Session</h6>
+                    <h2 class="display-6">{{ summary.avg_session_duration }}m</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-secondary text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-sign-in-alt me-2"></i>Total Sessions</h6>
+                    <h2 class="display-6">{{ summary.total_sessions }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-file-alt me-2"></i>Page Views</h6>
+                    <h2 class="display-6">{{ summary.total_pageviews }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-primary text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-exchange-alt me-2"></i>Pages / Session</h6>
+                    <h2 class="display-6">{{ summary.pages_per_session }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white h-100">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="fas fa-arrow-down me-2"></i>Bounce Rate</h6>
+                    <h2 class="display-6">{{ summary.bounce_rate }}%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Traffic Sources</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="trafficSourcesChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Device Types</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="devicesChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Daily Traffic</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="dailyTrafficChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Peak Hours</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="peakHoursChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tables Row -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Top Countries</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Country</th>
+                                <th class="text-end">Visitors</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in countries %}
+                            <tr>
+                                <td>{{ item.country|default:"Unknown" }}</td>
+                                <td class="text-end">{{ item.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center text-muted">No data available</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Top Pages</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Page Path</th>
+                                <th class="text-end">Views</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in top_pages %}
+                            <tr>
+                                <td>{{ item.path }}</td>
+                                <td class="text-end">{{ item.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center text-muted">No data available</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Least Visited Pages</h5>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Page Path</th>
+                                <th class="text-end">Views</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in least_pages %}
+                            <tr>
+                                <td>{{ item.path }}</td>
+                                <td class="text-end">{{ item.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center text-muted">No data available</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Data passed from Django view
+    const trafficSources = JSON.parse('{{ traffic_sources_json|escapejs }}');
+    const devices = JSON.parse('{{ devices_json|escapejs }}');
+    const trafficTrend = JSON.parse('{{ traffic_trend_json|escapejs }}');
+    const peakHours = JSON.parse('{{ peak_hours_json|escapejs }}');
+
+    // Chart Global Defaults
+    Chart.defaults.color = '#8a909d';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    // 1. Traffic Sources Chart (Doughnut)
+    const tsCtx = document.getElementById('trafficSourcesChart').getContext('2d');
+    new Chart(tsCtx, {
+        type: 'doughnut',
+        data: {
+            labels: Object.keys(trafficSources),
+            datasets: [{
+                data: Object.values(trafficSources),
+                backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e'],
+                hoverBackgroundColor: ['#2e59d9', '#17a673', '#2c9faf', '#dda20a'],
+                hoverBorderColor: "rgba(234, 236, 244, 1)",
+            }],
+        },
+        options: {
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // 2. Devices Chart (Bar)
+    const devCtx = document.getElementById('devicesChart').getContext('2d');
+    const deviceLabels = devices.map(d => d.device_type || 'Unknown');
+    const deviceData = devices.map(d => d.count);
+    
+    new Chart(devCtx, {
+        type: 'bar',
+        data: {
+            labels: deviceLabels,
+            datasets: [{
+                label: 'Visitors',
+                data: deviceData,
+                backgroundColor: '#4e73df',
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 3. Daily Traffic Chart (Line)
+    const dailyCtx = document.getElementById('dailyTrafficChart').getContext('2d');
+    new Chart(dailyCtx, {
+        type: 'line',
+        data: {
+            labels: trafficTrend.map(item => item.label),
+            datasets: [{
+                label: 'Page Views',
+                data: trafficTrend.map(item => item.count),
+                borderColor: '#4e73df',
+                backgroundColor: 'rgba(78, 115, 223, 0.15)',
+                fill: true,
+                tension: 0.3,
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+
+    // 4. Peak Hours Chart (Bar)
+    const hourCtx = document.getElementById('peakHoursChart').getContext('2d');
+    new Chart(hourCtx, {
+        type: 'bar',
+        data: {
+            labels: peakHours.map(item => item.hour + ':00'),
+            datasets: [{
+                label: 'Sessions',
+                data: peakHours.map(item => item.count),
+                backgroundColor: '#1cc88a',
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+</script>
+{% endblock %}

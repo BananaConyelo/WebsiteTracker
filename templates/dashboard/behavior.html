@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Behavior Analytics</h2>
+    </div>
+
+    <!-- Scroll Depth Card -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="card-title mb-0"><i class="fas fa-arrows-alt-v me-2"></i>Average Scroll Depth</h5>
+                        <small class="text-white-50">How far users scroll down your pages before leaving</small>
+                    </div>
+                    <h2 class="display-5 mb-0">{{ avg_scroll }}%</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Landing & Exit Pages -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Top Landing Pages</h5>
+                    <small class="text-muted">Where users enter your site</small>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Page Path</th>
+                                <th class="text-end">Sessions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in landing_pages %}
+                            <tr>
+                                <td>{{ item.path }}</td>
+                                <td class="text-end">{{ item.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center text-muted">No data available</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Top Exit Pages</h5>
+                    <small class="text-muted">Where users leave your site</small>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Page Path</th>
+                                <th class="text-end">Exits</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in exit_pages %}
+                            <tr>
+                                <td>{{ item.path }}</td>
+                                <td class="text-end">{{ item.count }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr><td colspan="2" class="text-center text-muted">No data available</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Time-Based Analytics</h2>
+        <span class="badge bg-primary fs-6">Last 90 Days</span>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Daily Page Views</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="dailyTrafficChart" style="max-height: 320px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Weekly Traffic Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="weeklyTrafficChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Monthly Traffic Trend</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="monthlyTrafficChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Peak Visit Hours</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="peakHoursChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100">
+                <div class="card-header bg-transparent border-0 pt-3">
+                    <h5 class="card-title">Peak Visit Days</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="peakDaysChart" style="max-height: 300px;"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    const dailyTraffic = JSON.parse('{{ daily_traffic_json|escapejs }}');
+    const weeklyTraffic = JSON.parse('{{ weekly_traffic_json|escapejs }}');
+    const monthlyTraffic = JSON.parse('{{ monthly_traffic_json|escapejs }}');
+    const peakHours = JSON.parse('{{ peak_hours_json|escapejs }}');
+    const peakDays = JSON.parse('{{ peak_days_json|escapejs }}');
+
+    Chart.defaults.color = '#8a909d';
+    Chart.defaults.font.family = "'Inter', sans-serif";
+
+    const createAreaChart = (ctx, labels, data, label, color) => {
+        return new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels,
+                datasets: [{
+                    label,
+                    data,
+                    borderColor: color,
+                    backgroundColor: color.replace(')', ', 0.15)').replace('rgb', 'rgba'),
+                    fill: true,
+                    tension: 0.3,
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true }
+                },
+                plugins: {
+                    legend: { display: false }
+                }
+            }
+        });
+    };
+
+    createAreaChart(
+        document.getElementById('dailyTrafficChart').getContext('2d'),
+        dailyTraffic.map(item => item.label),
+        dailyTraffic.map(item => item.count),
+        'Daily Page Views',
+        'rgb(78, 115, 223)'
+    );
+
+    createAreaChart(
+        document.getElementById('weeklyTrafficChart').getContext('2d'),
+        weeklyTraffic.map(item => item.label),
+        weeklyTraffic.map(item => item.count),
+        'Weekly Page Views',
+        'rgb(28, 200, 138)'
+    );
+
+    createAreaChart(
+        document.getElementById('monthlyTrafficChart').getContext('2d'),
+        monthlyTraffic.map(item => item.label),
+        monthlyTraffic.map(item => item.count),
+        'Monthly Page Views',
+        'rgb(246, 194, 62)'
+    );
+
+    const peakHoursCtx = document.getElementById('peakHoursChart').getContext('2d');
+    new Chart(peakHoursCtx, {
+        type: 'bar',
+        data: {
+            labels: peakHours.map(item => item.hour + ':00'),
+            datasets: [{
+                label: 'Sessions',
+                data: peakHours.map(item => item.count),
+                backgroundColor: 'rgb(132, 137, 150)',
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { display: false } }
+        }
+    });
+
+    const weekdayLabels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const peakDaysCtx = document.getElementById('peakDaysChart').getContext('2d');
+    new Chart(peakDaysCtx, {
+        type: 'bar',
+        data: {
+            labels: peakDays.map(item => weekdayLabels[item.day - 1] || 'Unknown'),
+            datasets: [{
+                label: 'Sessions',
+                data: peakDays.map(item => item.count),
+                backgroundColor: 'rgb(116, 185, 255)',
+            }]
+        },
+        options: {
+            maintainAspectRatio: false,
+            scales: { y: { beginAtZero: true } },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+{% endblock %}
